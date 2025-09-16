@@ -100,11 +100,7 @@ export interface FileListResponse {
 export const filesAPI = {
   list: () => api.get<FileListResponse>('/files/'),
   
-  upload: (file: File) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('url', `/documents/${file.name}`);
-    formData.append('name', file.name);
+  upload: (formData: FormData) => {
     return api.post<FileDocument>('/files/', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',

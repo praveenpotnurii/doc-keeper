@@ -64,17 +64,17 @@ class FileListCreateView(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-        url = serializer.validated_data['url']
-        name = serializer.validated_data['name']
+        name = serializer.validated_data.get('name')
         file_obj = serializer.validated_data['file']
+        url = serializer.validated_data.get('url')  # Optional now
         user = request.user
         
         try:
             # Validate file upload
             validate_file_upload(file_obj, user, url)
             
-            # Create or update document
-            document, revision = create_file_document(user, url, name, file_obj)
+            # Create or update document (URL will be auto-generated if not provided)
+            document, revision = create_file_document(user, name, file_obj, url)
             
             # Return the created document
             doc_serializer = FileDocumentDetailSerializer(document, context={'request': request})

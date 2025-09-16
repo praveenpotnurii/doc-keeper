@@ -22,7 +22,9 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadComplete }) => {
     setUploadProgress(0);
 
     try {
-      await filesAPI.upload(file);
+      const formData = new FormData();
+      formData.append('file', file);
+      await filesAPI.upload(formData);
       onUploadComplete();
       setUploadProgress(100);
       setTimeout(() => {

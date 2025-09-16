@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import FileList from './FileList';
-import FileUpload from './FileUpload';
+import EnhancedFileUpload from './EnhancedFileUpload';
 import { useAuth } from '../contexts/AuthContext';
 
 const Dashboard: React.FC = () => {
@@ -25,7 +25,7 @@ const Dashboard: React.FC = () => {
       
       <main className="dashboard-main">
         <div className="upload-section">
-          <FileUpload onUploadComplete={handleUploadComplete} />
+          <EnhancedFileUpload onUploadComplete={handleUploadComplete} />
         </div>
         
         <div className="files-section">

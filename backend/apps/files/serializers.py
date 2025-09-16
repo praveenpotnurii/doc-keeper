@@ -191,7 +191,8 @@ class FileUploadSerializer(serializers.Serializer):
     """
     url = serializers.CharField(
         max_length=500,
-        help_text="URL path where the file should be accessible"
+        required=False,
+        help_text="URL path where the file should be accessible (optional, will be auto-generated if not provided)"
     )
     name = serializers.CharField(
         max_length=255,
@@ -204,13 +205,14 @@ class FileUploadSerializer(serializers.Serializer):
     
     def validate_url(self, value):
         """
-        Validate URL path format
+        Validate URL path format (only if provided)
         """
-        if not value.startswith('/'):
-            raise serializers.ValidationError("URL must start with '/'")
-        
-        if value.endswith('/'):
-            raise serializers.ValidationError("URL cannot end with '/'")
+        if value:  # Only validate if URL is provided
+            if not value.startswith('/'):
+                raise serializers.ValidationError("URL must start with '/'")
+            
+            if value.endswith('/'):
+                raise serializers.ValidationError("URL cannot end with '/'")
         
         return value
     

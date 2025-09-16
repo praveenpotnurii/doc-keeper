@@ -26,27 +26,15 @@ def validate_file_size(file_obj, max_size_mb=10):
 
 def validate_file_extension(file_obj, allowed_extensions=None):
     """
-    Validate file extension
+    Validate file extension - now allows any extension as per requirements
     """
-    if allowed_extensions is None:
-        allowed_extensions = [
-            'pdf', 'doc', 'docx', 'txt', 'rtf',
-            'jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff',
-            'zip', 'rar', '7z', 'tar', 'gz',
-            'csv', 'xlsx', 'xls', 'ods',
-            'ppt', 'pptx', 'odp',
-            'mp4', 'avi', 'mov', 'wmv', 'flv',
-            'mp3', 'wav', 'flac', 'ogg'
-        ]
-    
+    # Allow any file extension as per requirements
+    # Only perform basic filename validation
     filename = file_obj.name
-    ext = os.path.splitext(filename)[1].lower().lstrip('.')
+    if not filename:
+        raise ValidationError('Filename is required.')
     
-    if ext not in allowed_extensions:
-        raise ValidationError(
-            f'File type ".{ext}" not allowed. '
-            f'Allowed types: {", ".join(allowed_extensions)}'
-        )
+    # No extension restrictions - all file types are allowed
 
 
 def validate_filename(filename):
@@ -129,81 +117,39 @@ def validate_url_path(url_path):
 
 def validate_content_type(file_obj, allowed_types=None):
     """
-    Validate file content type
+    Validate file content type - now allows any content type as per requirements
     """
-    if allowed_types is None:
-        allowed_types = [
-            # Documents
-            'application/pdf',
-            'application/msword',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'text/plain',
-            'text/rtf',
-            
-            # Images
-            'image/jpeg',
-            'image/png',
-            'image/gif',
-            'image/bmp',
-            'image/tiff',
-            
-            # Archives
-            'application/zip',
-            'application/x-rar-compressed',
-            'application/x-7z-compressed',
-            
-            # Spreadsheets
-            'application/vnd.ms-excel',
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'text/csv',
-            
-            # Presentations
-            'application/vnd.ms-powerpoint',
-            'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-            
-            # Video
-            'video/mp4',
-            'video/avi',
-            'video/quicktime',
-            
-            # Audio
-            'audio/mpeg',
-            'audio/wav',
-            'audio/flac',
-        ]
-    
-    # Get content type from file
+    # Allow any content type as per requirements
+    # Only basic validation for empty content type
     content_type = getattr(file_obj, 'content_type', None)
     
-    if content_type and content_type not in allowed_types:
-        raise ValidationError(
-            f'File content type "{content_type}" not allowed.'
-        )
+    # No content type restrictions - all file types are allowed
+    # This ensures the requirement "stores files of any type" is met
 
 
 def validate_file_content(file_obj):
     """
-    Basic file content validation
+    Basic file content validation - minimal restrictions for security
     """
     # Reset file pointer
     file_obj.seek(0)
     
-    # Read first few bytes to check for common file signatures
+    # Read first few bytes to check for empty files
     header = file_obj.read(16)
     file_obj.seek(0)  # Reset pointer
     
     if len(header) == 0:
         raise ValidationError('File appears to be empty.')
     
-    # Check for potentially malicious files
-    malicious_signatures = [
-        b'\x4d\x5a',  # PE executable (MZ)
-        b'\x7f\x45\x4c\x46',  # ELF executable
+    # Minimal security check - only block obviously dangerous executable types
+    # This maintains the requirement to accept "any type" while providing basic security
+    dangerous_signatures = [
+        b'\x4d\x5a',  # PE executable (MZ) - only block Windows executables
     ]
     
-    for signature in malicious_signatures:
+    for signature in dangerous_signatures:
         if header.startswith(signature):
-            raise ValidationError('Executable files are not allowed.')
+            raise ValidationError('Windows executable files are not allowed for security reasons.')
 
 
 def validate_user_storage_limit(user, additional_size):

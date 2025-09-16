@@ -114,10 +114,23 @@ def get_safe_filename(filename):
     return filename
 
 
-def create_file_document(user, url, name, file_obj):
+def generate_automatic_url(filename):
+    """
+    Generate automatic URL based on filename
+    """
+    safe_filename = get_safe_filename(filename)
+    return f"/documents/{safe_filename}"
+
+
+def create_file_document(user, name, file_obj, url=None):
     """
     Create or update a file document with a new revision
+    Auto-generates URL if not provided
     """
+    # Auto-generate URL if not provided
+    if not url:
+        url = generate_automatic_url(name or file_obj.name)
+    
     # Get or create the document
     document, created = FileDocument.objects.get_or_create(
         owner=user,

@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.core.validators import FileExtensionValidator
 import os
 
 
@@ -61,14 +60,8 @@ class FileRevision(models.Model):
         related_name='revisions'
     )
     file_data = models.FileField(
-        upload_to=user_file_path,
-        validators=[
-            # Add basic file extension validation - can be expanded
-            FileExtensionValidator(allowed_extensions=[
-                'pdf', 'doc', 'docx', 'txt', 'jpg', 'jpeg', 'png', 'gif',
-                'zip', 'rar', 'csv', 'xlsx', 'xls', 'ppt', 'pptx'
-            ])
-        ]
+        upload_to=user_file_path
+        # No file extension restrictions - allows any file type as per requirements
     )
     revision_number = models.PositiveIntegerField()
     uploaded_at = models.DateTimeField(auto_now_add=True)
