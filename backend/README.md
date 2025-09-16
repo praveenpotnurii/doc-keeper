@@ -56,7 +56,28 @@ Will be documented as development progresses.
 
 ## Testing
 
-Run tests with:
+Run all tests:
 ```bash
 python manage.py test
 ```
+
+Run tests for specific app:
+```bash
+python manage.py test apps.authentication
+python manage.py test apps.files
+```
+
+Run tests with coverage:
+```bash
+pip install coverage
+coverage run --source='.' manage.py test
+coverage report
+coverage html  # Generates htmlcov/ directory with detailed report
+```
+
+Test coverage includes:
+- Authentication models, serializers, and API endpoints
+- File management models, serializers, and API endpoints
+- User permissions and access controls
+- File upload, download, and revision management
+- API error handling and validation

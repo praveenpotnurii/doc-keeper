@@ -41,15 +41,54 @@ const FileList: React.FC = () => {
 
   const handleDownload = async (file: FileDocument) => {
     try {
-      const response = await filesAPI.download(file.url);
-      const url = window.URL.createObjectURL(new Blob([response.data]));
+      // Download latest version (explicitly specify latest revision number)
+      const latestRevisionNumber = file.latest_revision?.revision_number;
+      const response = await filesAPI.download(file.url, latestRevisionNumber);
+      
+      // Get the filename from Content-Disposition header if available
+      const contentDisposition = response.headers['content-disposition'] || 
+                                response.headers['Content-Disposition'];
+      let downloadFilename = file.name;
+      
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename[^;=\n]*=["']?([^"';]+)["']?/);
+        if (filenameMatch && filenameMatch[1]) {
+          downloadFilename = filenameMatch[1];
+        }
+      } else {
+        // Fallback: generate filename based on content-type and latest revision info
+        const contentType = response.headers['content-type'];
+        const baseFileName = file.name.replace(/\.[^/.]+$/, ''); // Remove extension
+        
+        if (contentType === 'application/zip') {
+          downloadFilename = `${baseFileName}.zip`;
+        } else if (contentType === 'application/pdf') {
+          downloadFilename = `${baseFileName}.pdf`;
+        } else if (file.latest_revision?.file_extension) {
+          // Use the extension from latest revision info
+          downloadFilename = `${baseFileName}${file.latest_revision.file_extension}`;
+        }
+      }
+      
+      // Create blob with correct content type
+      const contentType = response.headers['content-type'] || 'application/octet-stream';
+      const blob = new Blob([response.data], { type: contentType });
+      
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', file.name);
+      link.setAttribute('download', downloadFilename);
+      
       document.body.appendChild(link);
+      link.style.display = 'none';
       link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
+      
+      // Clean up
+      setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      }, 100);
+      
     } catch (err) {
       alert('Failed to download file');
     }

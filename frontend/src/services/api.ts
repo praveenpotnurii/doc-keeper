@@ -123,15 +123,11 @@ export const filesAPI = {
   delete: (url: string) => api.delete(`/files/${url}/`),
   
   download: (url: string, revisionNumber?: number) => {
+    const timestamp = Date.now();
     const downloadUrl = revisionNumber 
-      ? `/files/${url}/?download=true&revision=${revisionNumber}`
-      : `/files/${url}/?download=true`;
+      ? `/files/${url}/?download=true&revision=${revisionNumber}&_t=${timestamp}`
+      : `/files/${url}/?download=true&_t=${timestamp}`;
     
-    console.log('Making download request:', {
-      originalUrl: url,
-      revisionNumber,
-      fullDownloadUrl: downloadUrl
-    });
     
     return api.get(downloadUrl, {
       responseType: 'blob',

@@ -19,6 +19,23 @@ You will also see any lint errors in the console.
 Launches the test runner in the interactive watch mode.\
 See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
+Run tests with coverage:
+```bash
+npm test -- --coverage --watchAll=false
+```
+
+Run specific test file:
+```bash
+npm test FileList.test.tsx
+```
+
+Test coverage includes:
+- React components (FileList, Login, FileUpload)
+- API service methods and error handling
+- Authentication flows and token management
+- File upload, download, and management features
+- User interface interactions and form validation
+
 ### `npm run build`
 
 Builds the app for production to the `build` folder.\

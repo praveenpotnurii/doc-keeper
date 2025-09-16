@@ -63,17 +63,65 @@ const FileRevisionHistory: React.FC<FileRevisionHistoryProps> = ({ file, onClose
       console.log('Download response received:', {
         status: response.status,
         headers: response.headers,
-        dataSize: response.data.size
+        dataSize: response.data.size,
+        contentType: response.headers['content-type']
       });
       
-      const url = window.URL.createObjectURL(new Blob([response.data]));
+      console.log('All response headers:', Object.keys(response.headers));
+      
+      // Get the filename from Content-Disposition header if available
+      // Try different header name variations
+      const contentDisposition = response.headers['content-disposition'] || 
+                                response.headers['Content-Disposition'];
+      let downloadFilename = `${file.name}_v${revision.revision_number}`;
+      
+      console.log('Content-Disposition header:', contentDisposition);
+      
+      if (contentDisposition) {
+        // Try to extract filename from header like 'attachment; filename="Assignment2.zip"'
+        const filenameMatch = contentDisposition.match(/filename[^;=\n]*=["']?([^"';]+)["']?/);
+        if (filenameMatch && filenameMatch[1]) {
+          downloadFilename = filenameMatch[1];
+          console.log('Extracted filename from header:', downloadFilename);
+        }
+      } else {
+        // Fallback: generate filename based on content-type and revision
+        const contentType = response.headers['content-type'];
+        if (contentType === 'application/zip') {
+          downloadFilename = `${file.name.replace(/\.[^/.]+$/, '')}_v${revision.revision_number}.zip`;
+        } else if (contentType === 'application/pdf') {
+          downloadFilename = `${file.name.replace(/\.[^/.]+$/, '')}_v${revision.revision_number}.pdf`;
+        }
+        console.log('Using fallback filename based on content-type:', downloadFilename);
+      }
+      
+      console.log('Using filename:', downloadFilename);
+      
+      // Create blob with correct content type
+      const contentType = response.headers['content-type'] || 'application/octet-stream';
+      const blob = new Blob([response.data], { type: contentType });
+      
+      console.log('Created blob:', {
+        size: blob.size,
+        type: blob.type
+      });
+      
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `${file.name}_v${revision.revision_number}`);
+      link.setAttribute('download', downloadFilename);
+      
+      // Force download by clicking in a clean way
       document.body.appendChild(link);
+      link.style.display = 'none';
       link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
+      
+      // Clean up
+      setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      }, 100);
+      
     } catch (err) {
       console.error('Download error:', err);
       alert('Failed to download revision');

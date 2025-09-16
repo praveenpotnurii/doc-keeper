@@ -166,6 +166,12 @@ class FileDetailView(APIView):
                 )
                 response['Content-Disposition'] = f'attachment; filename="{actual_filename}"'
                 response['Content-Length'] = revision.file_size
+                
+                # Add cache-busting headers to prevent browser caching issues
+                response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+                response['Pragma'] = 'no-cache'
+                response['Expires'] = '0'
+                
                 return response
             except Exception as e:
                 print(f"DEBUG: Error reading file: {str(e)}")
