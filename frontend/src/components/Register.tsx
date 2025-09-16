@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Input } from './ui/input';
+import { Button } from './ui/button';
+import { ThemeToggle } from './ui/theme-toggle';
 
 const Register: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -47,12 +51,36 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-form">
-        <h2>Register</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <input
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl text-center">Register</CardTitle>
+          <CardDescription className="text-center">
+            Create an account to get started
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                type="text"
+                name="first_name"
+                placeholder="First Name"
+                value={formData.first_name}
+                onChange={handleChange}
+              />
+              <Input
+                type="text"
+                name="last_name"
+                placeholder="Last Name"
+                value={formData.last_name}
+                onChange={handleChange}
+              />
+            </div>
+            <Input
               type="text"
               name="username"
               placeholder="Username"
@@ -60,9 +88,7 @@ const Register: React.FC = () => {
               onChange={handleChange}
               required
             />
-          </div>
-          <div className="form-group">
-            <input
+            <Input
               type="email"
               name="email"
               placeholder="Email"
@@ -70,27 +96,7 @@ const Register: React.FC = () => {
               onChange={handleChange}
               required
             />
-          </div>
-          <div className="form-group">
-            <input
-              type="text"
-              name="first_name"
-              placeholder="First Name"
-              value={formData.first_name}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="form-group">
-            <input
-              type="text"
-              name="last_name"
-              placeholder="Last Name"
-              value={formData.last_name}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="form-group">
-            <input
+            <Input
               type="password"
               name="password"
               placeholder="Password"
@@ -98,9 +104,7 @@ const Register: React.FC = () => {
               onChange={handleChange}
               required
             />
-          </div>
-          <div className="form-group">
-            <input
+            <Input
               type="password"
               name="password_confirm"
               placeholder="Confirm Password"
@@ -108,16 +112,23 @@ const Register: React.FC = () => {
               onChange={handleChange}
               required
             />
-          </div>
-          {error && <div className="error">{error}</div>}
-          <button type="submit" disabled={isLoading}>
-            {isLoading ? 'Registering...' : 'Register'}
-          </button>
-        </form>
-        <p>
-          Already have an account? <Link to="/login">Login</Link>
-        </p>
-      </div>
+            {error && (
+              <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md">
+                {error}
+              </div>
+            )}
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? 'Registering...' : 'Register'}
+            </Button>
+          </form>
+          <p className="text-center text-sm text-muted-foreground mt-4">
+            Already have an account?{' '}
+            <Link to="/login" className="text-primary hover:underline">
+              Login
+            </Link>
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 };

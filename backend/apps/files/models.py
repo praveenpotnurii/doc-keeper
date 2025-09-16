@@ -110,8 +110,9 @@ class FileRevision(models.Model):
         if not self.file_size:
             return "0 bytes"
         
+        size = float(self.file_size)  # Use a copy, don't modify the original
         for unit in ['bytes', 'KB', 'MB', 'GB']:
-            if self.file_size < 1024.0:
-                return f"{self.file_size:.1f} {unit}"
-            self.file_size /= 1024.0
-        return f"{self.file_size:.1f} TB"
+            if size < 1024.0:
+                return f"{size:.1f} {unit}"
+            size /= 1024.0
+        return f"{size:.1f} TB"

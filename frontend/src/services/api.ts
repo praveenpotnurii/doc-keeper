@@ -122,9 +122,21 @@ export const filesAPI = {
   
   delete: (url: string) => api.delete(`/files/${url}/`),
   
-  download: (url: string) => api.get(`/files/${url}/?download=true`, {
-    responseType: 'blob',
-  }),
+  download: (url: string, revisionNumber?: number) => {
+    const downloadUrl = revisionNumber 
+      ? `/files/${url}/?download=true&revision=${revisionNumber}`
+      : `/files/${url}/?download=true`;
+    
+    console.log('Making download request:', {
+      originalUrl: url,
+      revisionNumber,
+      fullDownloadUrl: downloadUrl
+    });
+    
+    return api.get(downloadUrl, {
+      responseType: 'blob',
+    });
+  },
   
   getRevisions: (url: string) => api.get<{document: FileDocument, revisions: FileRevision[]}>(`/files/${url}/revisions/`),
 };

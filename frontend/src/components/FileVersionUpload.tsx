@@ -1,5 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { filesAPI } from '../services/api';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogBody, DialogFooter } from './ui/dialog';
+import { Button } from './ui/button';
+import { Upload, File } from 'lucide-react';
 
 interface FileVersionUploadProps {
   existingFileUrl: string;
@@ -78,60 +81,77 @@ const FileVersionUpload: React.FC<FileVersionUploadProps> = ({
   };
 
   return (
-    <div className="modal-overlay" onClick={onCancel}>
-      <div className="modal version-upload-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h3>Upload New Version</h3>
-          <button className="close-btn" onClick={onCancel}>×</button>
-        </div>
+    <Dialog open={true} onOpenChange={(open) => !open && onCancel()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Upload className="h-5 w-5" />
+            Upload New Version
+          </DialogTitle>
+          <DialogClose onClose={onCancel} />
+        </DialogHeader>
         
-        <div className="modal-content">
-          <p>Upload a new version of: <strong>{fileName}</strong></p>
-          
-          <div
-            className={`upload-zone ${isDragging ? 'dragging' : ''} ${isUploading ? 'uploading' : ''}`}
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-          >
-            {isUploading ? (
-              <div className="upload-progress">
-                <div className="progress-bar">
-                  <div 
-                    className="progress-fill" 
-                    style={{ width: `${uploadProgress}%` }}
-                  ></div>
+        <DialogBody>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Upload a new version of: <span className="font-medium text-foreground">{fileName}</span>
+            </p>
+            
+            <div
+              className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
+                isDragging 
+                  ? 'border-primary bg-primary/5' 
+                  : isUploading
+                  ? 'border-muted-foreground/25 cursor-not-allowed'
+                  : 'border-muted-foreground/25 hover:border-primary hover:bg-primary/5'
+              }`}
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onClick={!isUploading ? handleButtonClick : undefined}
+            >
+              {isUploading ? (
+                <div className="space-y-2">
+                  <div className="w-full bg-muted rounded-full h-2">
+                    <div 
+                      className="bg-primary h-2 rounded-full transition-all duration-300" 
+                      style={{ width: `${uploadProgress}%` }}
+                    />
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Uploading new version... {uploadProgress}%
+                  </p>
                 </div>
-                <p>Uploading new version... {uploadProgress}%</p>
-              </div>
-            ) : (
-              <>
-                <div className="upload-icon">📁</div>
-                <p>Drag and drop new file here or</p>
-                <button 
-                  onClick={handleButtonClick}
-                  className="upload-button"
-                  disabled={isUploading}
-                >
-                  Choose File
-                </button>
-              </>
-            )}
+              ) : (
+                <>
+                  <File className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                  <p className="text-lg font-medium mb-2">Drop new file here</p>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    or click to browse files
+                  </p>
+                  <Button variant="outline" disabled={isUploading}>
+                    Choose File
+                  </Button>
+                </>
+              )}
+            </div>
+            
+            <input
+              ref={fileInputRef}
+              type="file"
+              onChange={handleFileInputChange}
+              className="hidden"
+            />
           </div>
-          
-          <input
-            ref={fileInputRef}
-            type="file"
-            onChange={handleFileInputChange}
-            style={{ display: 'none' }}
-          />
-        </div>
+        </DialogBody>
         
-        <div className="modal-footer">
-          <button onClick={onCancel} className="btn-cancel">Cancel</button>
-        </div>
-      </div>
-    </div>
+        <DialogFooter>
+          <Button onClick={onCancel} variant="outline" disabled={isUploading}>
+            Cancel
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 

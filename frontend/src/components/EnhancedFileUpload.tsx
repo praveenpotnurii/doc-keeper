@@ -1,5 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { filesAPI } from '../services/api';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Input } from './ui/input';
+import { Button } from './ui/button';
+import { Upload, File, X } from 'lucide-react';
 
 interface EnhancedFileUploadProps {
   onUploadComplete: () => void;
@@ -85,81 +89,110 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({ onUploadComplet
 
 
   return (
-    <div className="enhanced-file-upload">
-      <h3>Upload File</h3>
-      
-      {!selectedFile ? (
-        <div
-          className={`upload-zone ${isDragging ? 'dragging' : ''}`}
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-        >
-          <div className="upload-icon">📁</div>
-          <p>Drag and drop files here or</p>
-          <button 
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Upload className="h-5 w-5" />
+          Upload File
+        </CardTitle>
+        <CardDescription>
+          Upload your documents to the secure file storage system
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {!selectedFile ? (
+          <div
+            className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
+              isDragging 
+                ? 'border-primary bg-primary/5' 
+                : 'border-muted-foreground/25 hover:border-primary hover:bg-primary/5'
+            }`}
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
             onClick={handleButtonClick}
-            className="upload-button"
           >
-            Choose File
-          </button>
-        </div>
-      ) : (
-        <div className="upload-form">
-          <div className="selected-file">
-            <strong>Selected File:</strong> {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
+            <File className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+            <p className="text-lg font-medium mb-2">Drop files here</p>
+            <p className="text-sm text-muted-foreground mb-4">
+              or click to browse files
+            </p>
+            <Button variant="outline">
+              Choose File
+            </Button>
           </div>
-          
-          <div className="form-group">
-            <label>Display Name (optional):</label>
-            <input
-              type="text"
-              placeholder="My Document"
-              value={customName}
-              onChange={(e) => setCustomName(e.target.value)}
-              className="name-input"
-            />
-          </div>
-          
-          {isUploading ? (
-            <div className="upload-progress">
-              <div className="progress-bar">
-                <div 
-                  className="progress-fill" 
-                  style={{ width: `${uploadProgress}%` }}
-                ></div>
+        ) : (
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
+              <File className="h-8 w-8 text-primary" />
+              <div className="flex-1">
+                <p className="font-medium">{selectedFile.name}</p>
+                <p className="text-sm text-muted-foreground">
+                  {(selectedFile.size / 1024).toFixed(1)} KB
+                </p>
               </div>
-              <p>Uploading... {uploadProgress}%</p>
-            </div>
-          ) : (
-            <div className="upload-actions">
-              <button 
-                onClick={handleUpload}
-                className="btn-upload"
-              >
-                Upload File
-              </button>
-              <button 
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => {
                   setSelectedFile(null);
                   setCustomName('');
                 }}
-                className="btn-cancel"
               >
-                Cancel
-              </button>
+                <X className="h-4 w-4" />
+              </Button>
             </div>
-          )}
-        </div>
-      )}
-      
-      <input
-        ref={fileInputRef}
-        type="file"
-        onChange={handleFileInputChange}
-        style={{ display: 'none' }}
-      />
-    </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Display Name (optional)</label>
+              <Input
+                type="text"
+                placeholder="My Document"
+                value={customName}
+                onChange={(e) => setCustomName(e.target.value)}
+              />
+            </div>
+            
+            {isUploading ? (
+              <div className="space-y-2">
+                <div className="w-full bg-muted rounded-full h-2">
+                  <div 
+                    className="bg-primary h-2 rounded-full transition-all duration-300" 
+                    style={{ width: `${uploadProgress}%` }}
+                  />
+                </div>
+                <p className="text-sm text-center text-muted-foreground">
+                  Uploading... {uploadProgress}%
+                </p>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <Button onClick={handleUpload} className="flex-1">
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload File
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    setSelectedFile(null);
+                    setCustomName('');
+                  }}
+                >
+                  Cancel
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+        
+        <input
+          ref={fileInputRef}
+          type="file"
+          onChange={handleFileInputChange}
+          className="hidden"
+        />
+      </CardContent>
+    </Card>
   );
 };
 

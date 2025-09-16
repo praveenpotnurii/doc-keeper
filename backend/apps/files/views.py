@@ -131,14 +131,44 @@ class FileDetailView(APIView):
             
             # Serve file
             try:
+                # Get the original filename from the file path
+                import os
+                original_filename = os.path.basename(revision.file_data.name)
+                # Extract the actual filename after the revision prefix (e.g., "1_Assignment2.zip" -> "Assignment2.zip")
+                if '_' in original_filename:
+                    actual_filename = '_'.join(original_filename.split('_')[1:])
+                else:
+                    actual_filename = original_filename
+                
+                # Determine content type based on file extension if not set
+                if not revision.content_type:
+                    import mimetypes
+                    content_type, _ = mimetypes.guess_type(actual_filename)
+                    if not content_type:
+                        content_type = 'application/octet-stream'
+                else:
+                    content_type = revision.content_type
+                
+                # Debug logging
+                print(f"DEBUG: Downloading revision {revision.revision_number} for document {document.name}")
+                print(f"DEBUG: File path: {revision.file_data.path}")
+                print(f"DEBUG: Original filename: {original_filename}")
+                print(f"DEBUG: Actual filename: {actual_filename}")
+                print(f"DEBUG: File size: {revision.file_size}")
+                print(f"DEBUG: Content type: {content_type}")
+                
+                # Reset file pointer to beginning
+                revision.file_data.seek(0)
+                
                 response = HttpResponse(
                     revision.file_data.read(),
-                    content_type=revision.content_type or 'application/octet-stream'
+                    content_type=content_type
                 )
-                response['Content-Disposition'] = f'attachment; filename="{document.name}"'
+                response['Content-Disposition'] = f'attachment; filename="{actual_filename}"'
                 response['Content-Length'] = revision.file_size
                 return response
-            except Exception:
+            except Exception as e:
+                print(f"DEBUG: Error reading file: {str(e)}")
                 return Response({'error': 'File could not be read'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         # Return file details

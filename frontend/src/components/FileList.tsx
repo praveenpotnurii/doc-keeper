@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { filesAPI, FileDocument, FileListResponse } from '../services/api';
 import FileRevisionHistory from './FileRevisionHistory';
 import FileVersionUpload from './FileVersionUpload';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Button } from './ui/button';
+import { Download, Upload, History, Trash2, FileText, Clock } from 'lucide-react';
 
 const FileList: React.FC = () => {
   const [files, setFiles] = useState<FileDocument[]>([]);
@@ -91,65 +94,107 @@ const FileList: React.FC = () => {
     loadFiles(); // Refresh the file list
   };
 
-  if (isLoading) return <div className="loading">Loading files...</div>;
-  if (error) return <div className="error">{error}</div>;
+  if (isLoading) return (
+    <div className="flex items-center justify-center p-8">
+      <p className="text-muted-foreground">Loading files...</p>
+    </div>
+  );
+  
+  if (error) return (
+    <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md">
+      {error}
+    </div>
+  );
 
   return (
-    <div className="file-list">
-      <h2>Your Files</h2>
+    <div className="space-y-6">
+      <div className="flex items-center gap-2">
+        <FileText className="h-6 w-6" />
+        <h2 className="text-2xl font-semibold">Your Files</h2>
+      </div>
+      
       {!Array.isArray(files) || files.length === 0 ? (
-        <p>No files uploaded yet.</p>
+        <Card>
+          <CardContent className="text-center py-8">
+            <FileText className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+            <p className="text-muted-foreground">No files uploaded yet.</p>
+          </CardContent>
+        </Card>
       ) : (
-        <div className="files-grid">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {files.map((file) => (
-            <div key={file.id} className="file-card">
-              <div className="file-header">
-                <h3 className="file-name">{file.name}</h3>
-                <span className="file-type">
-                  {file.latest_revision?.file_extension || 'unknown'}
-                </span>
-              </div>
-              <div className="file-info">
-                <span className="file-size">
-                  {file.latest_revision?.formatted_file_size || '0 Bytes'}
-                </span>
-                <span className="file-date">
-                  {new Date(file.updated_at).toLocaleDateString()}
-                </span>
-                <span className="file-version">
-                  v{file.latest_revision?.revision_number || 1}
-                </span>
-                <span className="file-revisions">
-                  {file.revision_count} revision{file.revision_count !== 1 ? 's' : ''}
-                </span>
-              </div>
-              <div className="file-actions">
-                <button 
-                  onClick={() => handleDownload(file)}
-                  className="btn-download"
-                >
-                  Download
-                </button>
-                <button 
-                  onClick={() => handleShowVersionUpload(file)}
-                  className="btn-version"
-                >
-                  New Version
-                </button>
-                <button 
-                  onClick={() => handleShowRevisionHistory(file)}
-                  className="btn-history"
-                >
-                  History
-                </button>
-                <button 
-                  onClick={() => handleDelete(file)}
-                  className="btn-delete"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
+            <Card key={file.id} className="hover:shadow-md transition-shadow">
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1 flex-1 mr-2">
+                    <CardTitle className="text-base line-clamp-2">{file.name}</CardTitle>
+                    <CardDescription className="flex items-center gap-4 text-xs">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full bg-secondary text-secondary-foreground">
+                        {file.latest_revision?.file_extension || 'unknown'}
+                      </span>
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
+                  <span>{file.latest_revision?.formatted_file_size || '0 Bytes'}</span>
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    {new Date(file.updated_at).toLocaleDateString()}
+                  </span>
+                </div>
+                
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">
+                    v{file.latest_revision?.revision_number || 1}
+                  </span>
+                  <span className="text-muted-foreground">
+                    {file.revision_count} revision{file.revision_count !== 1 ? 's' : ''}
+                  </span>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-2">
+                  <Button 
+                    onClick={() => handleDownload(file)}
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                  >
+                    <Download className="h-4 w-4 mr-1" />
+                    Download
+                  </Button>
+                  <Button 
+                    onClick={() => handleShowVersionUpload(file)}
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                  >
+                    <Upload className="h-4 w-4 mr-1" />
+                    Version
+                  </Button>
+                  <Button 
+                    onClick={() => handleShowRevisionHistory(file)}
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                  >
+                    <History className="h-4 w-4 mr-1" />
+                    History
+                  </Button>
+                  <Button 
+                    onClick={() => handleDelete(file)}
+                    variant="destructive"
+                    size="sm"
+                    className="w-full"
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Delete
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}
