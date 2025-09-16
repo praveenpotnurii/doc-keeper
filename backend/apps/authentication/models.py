@@ -51,6 +51,10 @@ class UserProfile(models.Model):
                 return f"{size:.1f} {unit}"
             size /= 1024.0
         return f"{size:.1f} TB"
+    
+    def can_upload_file(self, file_size):
+        """Check if user can upload a file of given size"""
+        return (self.storage_used + file_size) <= self.storage_limit
 
 
 @receiver(post_save, sender=User)

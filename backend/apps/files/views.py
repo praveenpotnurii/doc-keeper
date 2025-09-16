@@ -17,6 +17,10 @@ from .serializers import (
 )
 from .utils import create_file_document, update_user_storage_usage
 from .validators import validate_file_upload
+from .permissions import (
+    FileAccessPermission, StorageQuotaPermission, FileTypePermission,
+    BulkOperationPermission, log_file_access, UPLOAD_PERMISSIONS, OWNER_PERMISSIONS
+)
 
 
 class FileListCreateView(APIView):
@@ -25,7 +29,7 @@ class FileListCreateView(APIView):
     GET /api/files/ - List all files for authenticated user
     POST /api/files/ - Upload a new file
     """
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, StorageQuotaPermission, FileTypePermission]
     parser_classes = [MultiPartParser, FormParser]
     
     def get(self, request):
@@ -89,7 +93,7 @@ class FileDetailView(APIView):
     PUT /api/files/{url}/ - Upload new revision
     DELETE /api/files/{url}/ - Delete file and all revisions
     """
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, FileAccessPermission, StorageQuotaPermission, FileTypePermission]
     parser_classes = [MultiPartParser, FormParser]
     
     def get_object(self, user, url):
@@ -106,6 +110,10 @@ class FileDetailView(APIView):
         
         # Check if this is a download request
         download = request.query_params.get('download', 'false').lower() == 'true'
+        
+        # Log file access
+        access_type = 'download' if download else 'view'
+        log_file_access(user, document, access_type, request)
         revision_num = request.query_params.get('revision', None)
         
         if download:
@@ -268,7 +276,7 @@ def file_stats_view(request):
 
 
 @api_view(['POST'])
-@permission_classes([permissions.IsAuthenticated])
+@permission_classes([permissions.IsAuthenticated, BulkOperationPermission])
 def bulk_delete_view(request):
     """
     Delete multiple files at once
