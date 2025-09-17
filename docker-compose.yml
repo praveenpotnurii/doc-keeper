@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - backend_media:/app/media
+    environment:
+      - DEBUG=1
+      - DJANGO_SETTINGS_MODULE=doc_keeper.settings
+    networks:
+      - doc-keeper-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - doc-keeper-network
+    restart: unless-stopped
+
+volumes:
+  backend_media:
+
+networks:
+  doc-keeper-network:
+    driver: bridge
