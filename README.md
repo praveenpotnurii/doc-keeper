@@ -7,20 +7,20 @@ A web application for secure file storage and retrieval with user authentication
 ### Authentication
 | Login Screen | Registration Screen |
 |:---:|:---:|
-| ![Login](Screenshot%202025-09-17%20at%207.57.09%20PM.png) | ![Register](Screenshot%202025-09-17%20at%207.57.18%20PM.png) |
+| ![Login](<Screenshot 2025-09-17 at 7.57.09 PM.png>) | ![Register](<Screenshot 2025-09-17 at 7.57.18 PM.png>) |
 
 ### Dashboard Views
 | Light Theme - Empty State | Light Theme - With Files |
 |:---:|:---:|
-| ![Dashboard Empty](Screenshot%202025-09-17%20at%207.58.29%20PM.png) | ![Dashboard With Files](Screenshot%202025-09-17%20at%207.59.21%20PM.png) |
+| ![Dashboard Empty](<Screenshot 2025-09-17 at 7.58.29 PM.png>) | ![Dashboard With Files](<Screenshot 2025-09-17 at 7.59.21 PM.png>) |
 
 ### File Management
 | File Upload | Revision History |
 |:---:|:---:|
-| ![File Upload](Screenshot%202025-09-17%20at%207.59.07%20PM.png) | ![Revision History](Screenshot%202025-09-17%20at%208.00.02%20PM.png) |
+| ![File Upload](<Screenshot 2025-09-17 at 7.59.07 PM.png>) | ![Revision History](<Screenshot 2025-09-17 at 8.00.02 PM.png>) |
 
 ### Dark Theme
-![Dark Theme Dashboard](Screenshot%202025-09-17%20at%208.00.31%20PM.png)
+![Dark Theme Dashboard](<Screenshot 2025-09-17 at 8.00.31 PM.png>)
 
 ## Features
 
