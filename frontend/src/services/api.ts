@@ -124,7 +124,7 @@ export const filesAPI = {
   
   download: (url: string, revisionNumber?: number) => {
     const timestamp = Date.now();
-    const downloadUrl = revisionNumber 
+    const downloadUrl = revisionNumber !== undefined 
       ? `/files/${url}/?download=true&revision=${revisionNumber}&_t=${timestamp}`
       : `/files/${url}/?download=true&_t=${timestamp}`;
     

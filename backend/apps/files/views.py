@@ -134,20 +134,26 @@ class FileDetailView(APIView):
                 # Get the original filename from the file path
                 import os
                 original_filename = os.path.basename(revision.file_data.name)
+                
                 # Extract the actual filename after the revision prefix (e.g., "1_Assignment2.zip" -> "Assignment2.zip")
+                # The filename format is: revision_number_original_filename
                 if '_' in original_filename:
-                    actual_filename = '_'.join(original_filename.split('_')[1:])
+                    # Split only on the first underscore to handle filenames with underscores
+                    parts = original_filename.split('_', 1)
+                    if len(parts) > 1 and parts[0].isdigit():
+                        actual_filename = parts[1]
+                    else:
+                        actual_filename = original_filename
                 else:
                     actual_filename = original_filename
                 
-                # Determine content type based on file extension if not set
-                if not revision.content_type:
-                    import mimetypes
-                    content_type, _ = mimetypes.guess_type(actual_filename)
-                    if not content_type:
-                        content_type = 'application/octet-stream'
-                else:
-                    content_type = revision.content_type
+                # Always determine content type based on the actual filename extension
+                # Don't rely on stored content_type as it might be incorrect
+                import mimetypes
+                content_type, _ = mimetypes.guess_type(actual_filename)
+                if not content_type:
+                    # If mimetypes can't determine it, use the stored content_type as fallback
+                    content_type = revision.content_type if revision.content_type else 'application/octet-stream'
                 
                 # Debug logging
                 print(f"DEBUG: Downloading revision {revision.revision_number} for document {document.name}")

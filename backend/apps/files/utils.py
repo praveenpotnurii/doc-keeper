@@ -147,7 +147,7 @@ def create_file_document(user, name, file_obj, url=None):
     revision = FileRevision.objects.create(
         document=document,
         file_data=file_obj,
-        content_type=get_file_mime_type(file_obj.name)
+        content_type=get_file_mime_type(name or file_obj.name)
     )
     
     # Update user storage usage
