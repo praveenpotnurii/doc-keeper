@@ -195,6 +195,11 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3001",  # Alternative React port
 ]
 
+# Add load balancer origins from environment variable
+cors_origins_env = os.getenv('CORS_ALLOWED_ORIGINS', '')
+if cors_origins_env:
+    CORS_ALLOWED_ORIGINS.extend(cors_origins_env.split(','))
+
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOW_ALL_ORIGINS = DEBUG  # Only allow all origins in debug mode

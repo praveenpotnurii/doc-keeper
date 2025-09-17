@@ -1,15 +1,16 @@
 # Backend Dockerfile
-FROM python:3.11-slim
+FROM python:3.11-alpine
 
 WORKDIR /app
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-RUN apt-get update && apt-get install -y \
+RUN apk add --no-cache \
     gcc \
-    postgresql-client \
-    && rm -rf /var/lib/apt/lists/*
+    musl-dev \
+    postgresql-dev \
+    postgresql-client
 
 COPY requirements.txt .
 
