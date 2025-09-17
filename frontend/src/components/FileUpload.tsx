@@ -9,27 +9,44 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadComplete }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [customName, setCustomName] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (files: FileList) => {
     if (files.length > 0) {
-      uploadFile(files[0]);
+      const file = files[0];
+      setSelectedFile(file);
+      // Keep display name empty - user must provide it manually
     }
   };
 
-  const uploadFile = async (file: File) => {
+  const uploadFile = async () => {
+    if (!selectedFile) {
+      alert('Please select a file');
+      return;
+    }
+
+    if (!customName.trim()) {
+      alert('Please provide a display name for the file');
+      return;
+    }
+
     setIsUploading(true);
     setUploadProgress(0);
 
     try {
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('file', selectedFile);
+      formData.append('name', customName.trim());
       await filesAPI.upload(formData);
       onUploadComplete();
       setUploadProgress(100);
       setTimeout(() => {
         setIsUploading(false);
         setUploadProgress(0);
+        setSelectedFile(null);
+        setCustomName('');
       }, 1000);
     } catch (err: any) {
       alert('Failed to upload file: ' + (err.response?.data?.detail || 'Unknown error'));
@@ -67,36 +84,57 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadComplete }) => {
 
   return (
     <div className="file-upload">
-      <div
-        className={`upload-zone ${isDragging ? 'dragging' : ''} ${isUploading ? 'uploading' : ''}`}
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-      >
-        {isUploading ? (
-          <div className="upload-progress">
-            <div className="progress-bar">
-              <div 
-                className="progress-fill" 
-                style={{ width: `${uploadProgress}%` }}
-              ></div>
-            </div>
-            <p>Uploading... {uploadProgress}%</p>
+      {!selectedFile ? (
+        <div
+          className={`upload-zone ${isDragging ? 'dragging' : ''} ${isUploading ? 'uploading' : ''}`}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+        >
+          <div className="upload-icon">📁</div>
+          <p>Drag and drop files here or</p>
+          <button 
+            onClick={handleButtonClick}
+            className="upload-button"
+            disabled={isUploading}
+          >
+            Choose File
+          </button>
+        </div>
+      ) : (
+        <div className="file-details">
+          <div className="selected-file">
+            <span>Selected: {selectedFile.name}</span>
+            <button onClick={() => { setSelectedFile(null); setCustomName(''); }}>×</button>
           </div>
-        ) : (
-          <>
-            <div className="upload-icon">📁</div>
-            <p>Drag and drop files here or</p>
-            <button 
-              onClick={handleButtonClick}
-              className="upload-button"
-              disabled={isUploading}
-            >
-              Choose File
-            </button>
-          </>
-        )}
-      </div>
+          <div className="name-input">
+            <label>Display Name *</label>
+            <input
+              type="text"
+              value={customName}
+              onChange={(e) => setCustomName(e.target.value)}
+              placeholder="Enter a display name for your file"
+              required
+            />
+          </div>
+          {isUploading ? (
+            <div className="upload-progress">
+              <div className="progress-bar">
+                <div 
+                  className="progress-fill" 
+                  style={{ width: `${uploadProgress}%` }}
+                ></div>
+              </div>
+              <p>Uploading... {uploadProgress}%</p>
+            </div>
+          ) : (
+            <div className="upload-actions">
+              <button onClick={uploadFile} className="upload-button">Upload</button>
+              <button onClick={() => { setSelectedFile(null); setCustomName(''); }} className="cancel-button">Cancel</button>
+            </div>
+          )}
+        </div>
+      )}
       <input
         ref={fileInputRef}
         type="file"

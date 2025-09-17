@@ -196,8 +196,8 @@ class FileUploadSerializer(serializers.Serializer):
     )
     name = serializers.CharField(
         max_length=255,
-        required=False,
-        help_text="Display name for the file (optional, will use filename if not provided)"
+        required=True,
+        help_text="Display name for the file (required)"
     )
     file = serializers.FileField(
         help_text="The file to upload"
@@ -234,12 +234,13 @@ class FileUploadSerializer(serializers.Serializer):
     
     def validate(self, attrs):
         """
-        Set default name if not provided
+        Validate name is provided and not empty
         """
-        if not attrs.get('name'):
-            file_obj = attrs.get('file')
-            if file_obj:
-                attrs['name'] = os.path.basename(file_obj.name)
+        name = attrs.get('name')
+        if not name or not name.strip():
+            raise serializers.ValidationError({
+                'name': 'Display name is required and cannot be empty'
+            })
         
         return attrs
 

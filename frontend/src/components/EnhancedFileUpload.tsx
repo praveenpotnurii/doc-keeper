@@ -21,10 +21,7 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({ onUploadComplet
     if (files.length > 0) {
       const file = files[0];
       setSelectedFile(file);
-      // Auto-populate name if empty
-      if (!customName) {
-        setCustomName(file.name);
-      }
+      // Keep display name empty - user must provide it manually
     }
   };
 
@@ -34,13 +31,18 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({ onUploadComplet
       return;
     }
 
+    if (!customName.trim()) {
+      alert('Please provide a display name for the file');
+      return;
+    }
+
     setIsUploading(true);
     setUploadProgress(0);
 
     try {
       const formData = new FormData();
       formData.append('file', selectedFile);
-      formData.append('name', customName.trim() || selectedFile.name);
+      formData.append('name', customName.trim());
       
       await filesAPI.upload(formData);
       onUploadComplete();
@@ -144,12 +146,13 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({ onUploadComplet
             </div>
             
             <div className="space-y-2">
-              <label className="text-sm font-medium">Display Name (optional)</label>
+              <label className="text-sm font-medium">Display Name *</label>
               <Input
                 type="text"
-                placeholder="My Document"
+                placeholder="Enter a display name for your file"
                 value={customName}
                 onChange={(e) => setCustomName(e.target.value)}
+                required
               />
             </div>
             
