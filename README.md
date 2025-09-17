@@ -2,6 +2,26 @@
 
 A web application for secure file storage and retrieval with user authentication and revision management.
 
+## Screenshots
+
+### Authentication
+| Login Screen | Registration Screen |
+|:---:|:---:|
+| ![Login](Screenshot%202025-09-17%20at%207.57.09%20PM.png) | ![Register](Screenshot%202025-09-17%20at%207.57.18%20PM.png) |
+
+### Dashboard Views
+| Light Theme - Empty State | Light Theme - With Files |
+|:---:|:---:|
+| ![Dashboard Empty](Screenshot%202025-09-17%20at%207.58.29%20PM.png) | ![Dashboard With Files](Screenshot%202025-09-17%20at%207.59.21%20PM.png) |
+
+### File Management
+| File Upload | Revision History |
+|:---:|:---:|
+| ![File Upload](Screenshot%202025-09-17%20at%207.59.07%20PM.png) | ![Revision History](Screenshot%202025-09-17%20at%208.00.02%20PM.png) |
+
+### Dark Theme
+![Dark Theme Dashboard](Screenshot%202025-09-17%20at%208.00.31%20PM.png)
+
 ## Features
 
 - **User Authentication**: JWT-based authentication with registration and login
